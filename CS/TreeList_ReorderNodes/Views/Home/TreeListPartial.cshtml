@@ -1,0 +1,62 @@
+﻿@using DevExpress.Web.ASPxTreeList
+@using DevExpress.Data
+
+@Html.DevExpress().TreeList(settings => {
+    settings.Name = "tlData";
+    settings.CallbackRouteValues = new { Controller = "Home", Action = "TreeListPartial" };
+    settings.SettingsEditing.NodeDragDropRouteValues = new { Controller = "Home", Action = "NodeDragDropPartial" };
+    settings.Width = Unit.Pixel(800);
+
+    settings.AutoGenerateColumns = false;
+    settings.KeyFieldName = "ID";
+    settings.ParentFieldName = "PARENTID";
+
+    settings.Columns.Add("DEPARTMENT").AllowSort = DefaultBoolean.False;
+    settings.Columns.Add("BUDGET").AllowSort = DefaultBoolean.False;
+    settings.Columns.Add("LOCATION").AllowSort = DefaultBoolean.False;
+    settings.Columns.Add("SortIndex").Visible = false;
+
+    settings.Columns.Add(c => {
+        c.FieldName = "SortIndex";
+        c.Visible = false;
+        c.SortOrder = ColumnSortOrder.Ascending;
+        c.SortIndex = 0;
+    });
+
+    settings.SettingsBehavior.AutoExpandAllNodes = true;
+    settings.SettingsBehavior.AllowDragDrop = true;
+    settings.SettingsEditing.AllowNodeDragDrop = true;
+
+    settings.ClientSideEvents.StartDragNode = "tlData_StartDragNode";
+
+    settings.DataBound = (s, e) => {
+        ASPxTreeList treeList = s as ASPxTreeList;
+
+        bool defaultNodes = (Session[treeList.UniqueID + "_Sort"] == null);
+        ICollection<TreeListNode> allNodes = treeList.GetAllNodes();
+
+        if (defaultNodes) {
+            Dictionary<string, int> nodeOrder = new Dictionary<string, int>();
+            foreach (TreeListNode node in allNodes) {
+                string parentKey = (node.ParentNode == null) ? String.Empty : node.ParentNode.Key;
+                int order = 0;
+                if (nodeOrder.ContainsKey(parentKey))
+                    order = ++nodeOrder[parentKey];
+                else
+                    nodeOrder[parentKey] = order;
+                node.SetValue("SortIndex", order);
+            }
+            Session[treeList.UniqueID + "_Sort"] = true;
+            treeList.DataBind();
+        }
+    };
+
+    settings.HtmlRowPrepared = (s, e) => {
+        ASPxTreeList treeList = s as ASPxTreeList;
+        if (e.RowKind == TreeListRowKind.Data) {
+            TreeListNode parent = treeList.FindNodeByKeyValue(e.NodeKey).ParentNode;
+            e.Row.Attributes.Add("nodeParent", (parent == null) ? String.Empty : parent.Key);
+        }
+    };
+
+}).Bind(Model).GetHtml()
