@@ -1,3 +1,11 @@
+<!-- default file list -->
+*Files to look at*:
+
+* [HomeController.cs](./CS/TreeList_ReorderNodes/Controllers/HomeController.cs)
+* [DepartmentsProvider.cs](./CS/TreeList_ReorderNodes/Models/DepartmentsProvider.cs)
+* **[Index.cshtml](./CS/TreeList_ReorderNodes/Views/Home/Index.cshtml)**
+* [TreeListPartial.cshtml](./CS/TreeList_ReorderNodes/Views/Home/TreeListPartial.cshtml)
+<!-- default file list end -->
 # TreeList - How to reorder sibling nodes
 
 
